@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Paisa Puzzle India</title>
     <style>
+        html {
+            height: 100%;
+            background: #0f2027;
+        }
         * {
             box-sizing: border-box;
             margin: 0;
@@ -49,48 +53,45 @@
             font-size: 14px;
         }
         .level-title {
-            font-size: 18px;
+            font-size: 16px;
             color: #00ffcc;
         }
         .puzzle-box {
-            margin: 20px 0;
-            font-size: 20px;
+            margin: 15px 0;
+            font-size: 18px;
             font-weight: bold;
-            line-height: 1.5;
+            line-height: 1.4;
+            text-align: left;
         }
-        input[type="text"] {
-            width: 100%;
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .option-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
             padding: 12px;
             border-radius: 10px;
-            border: none;
-            background: rgba(255, 255, 255, 0.15);
-            color: #fff;
-            font-size: 16px;
-            text-align: center;
-            margin-bottom: 15px;
-            outline: none;
-        }
-        input::placeholder {
-            color: #ccc;
-        }
-        .btn {
-            background: linear-gradient(45deg, #00b09b, #96c93d);
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: bold;
+            font-size: 15px;
             cursor: pointer;
-            width: 100%;
-            transition: 0.3s;
+            text-align: left;
+            transition: 0.2s;
         }
-        .btn:active {
-            transform: scale(0.98);
+        .option-btn:hover {
+            background: rgba(0, 255, 204, 0.2);
+            border-color: #00ffcc;
+        }
+        .hint-box {
+            font-size: 13px;
+            color: #ffeb3b;
+            margin-top: 10px;
         }
         .message {
-            margin-top: 15px;
-            font-size: 15px;
+            margin-top: 10px;
+            font-size: 14px;
             font-weight: bold;
         }
     </style>
@@ -99,7 +100,7 @@
 
     <div class="container">
         <header>
-            <div class="level-title" id="levelIndicator">Level 1</div>
+            <div class="level-title" id="categoryTitle">Category</div>
             <div class="wallet" id="walletBalance">🪙 Coins: 100</div>
         </header>
 
@@ -107,55 +108,103 @@
             लोड हो रहा है...
         </div>
 
-        <input type="text" id="userAnswer" placeholder="अपना उत्तर यहाँ लिखें...">
-        
-        <button class="btn" onclick="checkAnswer()">उत्तर दें</button>
+        <div class="options-list" id="optionsContainer">
+            <!-- Options will load dynamically -->
+        </div>
 
+        <div class="hint-box" id="hintText"></div>
         <div class="message" id="messageBox"></div>
     </div>
 
     <script>
-        const levels = [
-            { q: "भारत की राजधानी क्या है? (Capital of India)", a: "delhi" },
-            { q: "क्रिकेट टीम में कितने खिलाड़ी होते हैं? (Players in Cricket team)", a: "11" },
-            { q: "लाल किले में कौन सा रंग मुख्य रूप से है? (Color of Red Fort)", a: "lal" },
-            { q: "एक सप्ताह में कितने दिन होते हैं? (Days in a week)", a: "7" }
+        const gameData = [
+            {
+                category: "Number Puzzle",
+                question: "2, 4, 8, 16, ?",
+                options: ["20", "24", "32", "36"],
+                answer: 2,
+                hint: "हर बार संख्या को 2 से गुणा किया गया है।"
+            },
+            {
+                category: "Logic",
+                question: "एक कमरे में 5 मोमबत्तियाँ थीं। 2 बुझ गईं। कितनी बचीं?",
+                options: ["2", "3", "5", "0"],
+                answer: 2,
+                hint: "बुझी हुई मोमबत्तियाँ भी कमरे में मौजूद हैं।"
+            },
+            {
+                category: "Number Puzzle",
+                question: "3, 6, 11, 18, 27, ?",
+                options: ["36", "38", "40", "42"],
+                answer: 1,
+                hint: "+3, +5, +7, +9..."
+            },
+            {
+                category: "Observation",
+                question: "इनमें अलग कौन है?",
+                options: ["Apple", "Mango", "Banana", "Carrot"],
+                answer: 3,
+                hint: "तीन फल हैं, एक सब्जी है।"
+            },
+            {
+                category: "Logic",
+                question: "अगर आज सोमवार है, तो 3 दिन बाद कौन सा दिन होगा?",
+                options: ["मंगलवार", "बुधवार", "गुरुवार", "शुक्रवार"],
+                answer: 2,
+                hint: "सोमवार के बाद 1 = मंगलवार।"
+            },
+            {
+                category: "Number Puzzle",
+                question: "10 + 10 ÷ 2 = ?",
+                options: ["10", "15", "20", "25"],
+                answer: 1,
+                hint: "पहले भाग करें।"
+            }
         ];
 
         let currentLevel = 0;
         let coins = 100;
 
-        function loadLevel() {
-            if (currentLevel < levels.length) {
-                document.getElementById("levelIndicator").innerText = "Level " + (currentLevel + 1);
-                document.getElementById("questionText").innerText = levels[currentLevel].q;
-                document.getElementById("userAnswer").value = "";
+        function loadQuestion() {
+            if (currentLevel < gameData.length) {
+                let currentQ = gameData[currentLevel];
+                document.getElementById("categoryTitle").innerText = "Level " + (currentLevel + 1) + " (" + currentQ.category + ")";
+                document.getElementById("questionText").innerText = currentQ.question;
+                document.getElementById("hintText.innerText") = "";
                 document.getElementById("messageBox").innerText = "";
+                
+                let optionsHtml = "";
+                for (let i = 0; i < currentQ.options.length; i++) {
+                    optionsHtml += `<button class="option-btn" onclick="checkAnswer(${i})">${i + 1}. ${currentQ.options[i]}</button>`;
+                }
+                document.getElementById("optionsContainer").innerHTML = optionsHtml;
+                document.getElementById("hintText").innerText = "💡 हिंट: " + currentQ.hint;
             } else {
-                document.getElementById("questionText").innerText = "🎉 बधाई हो! आपने सारे लेवल पूरे कर लिए!";
-                document.getElementById("userAnswer").style.display = "none";
-                document.querySelector(".btn").style.display = "none";
+                document.getElementById("categoryTitle").innerText = "समाप्त!";
+                document.getElementById("questionText").innerText = "🎉 बधाई हो! आपने सभी पहेलियां सफलतापूर्वक हल कर लीं!";
+                document.getElementById("optionsContainer").innerHTML = "";
+                document.getElementById("hintText").innerText = "";
             }
         }
 
-        function checkAnswer() {
-            let userAns = document.getElementById("userAnswer").value.toLowerCase().trim();
-            let correctAns = levels[currentLevel].a;
+        function checkAnswer(selectedIndex) {
+            let currentQ = gameData[currentLevel];
+            let msgBox = document.getElementById("messageBox");
 
-            if (userAns === correctAns) {
+            if (selectedIndex === currentQ.answer) {
                 coins += 20;
                 document.getElementById("walletBalance").innerText = "🪙 Coins: " + coins;
-                document.getElementById("messageBox").style.color = "#00ffcc";
-                document.getElementById("messageBox").innerText = "सਹੀ जवाब! +20 सिक्के मिले 🎉";
+                msgBox.style.color = "#00ffcc";
+                msgBox.innerText = "सही जवाब! +20 सिक्के मिले 🎉";
                 currentLevel++;
-                setTimeout(loadLevel, 1500);
+                setTimeout(loadQuestion, 1500);
             } else {
-                document.getElementById("messageBox").style.color = "#ff4d4d";
-                document.getElementById("messageBox").innerText = "गलत जवाब! दोबारा कोशिश करें ❌";
+                msgBox.style.color = "#ff4d4d";
+                msgBox.innerText = "गलत जवाब! दोबारा कोशिश करें ❌";
             }
         }
 
-        loadLevel();
+        loadQuestion();
     </script>
 </body>
 </html>
