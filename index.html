@@ -1,1 +1,161 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paisa Puzzle India</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+        }
+        .container {
+            width: 100%;
+            max-width: 400px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            text-align: center;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 10px;
+        }
+        .wallet {
+            background: #ffd700;
+            color: #000;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .level-title {
+            font-size: 18px;
+            color: #00ffcc;
+        }
+        .puzzle-box {
+            margin: 20px 0;
+            font-size: 20px;
+            font-weight: bold;
+            line-height: 1.5;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: none;
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            font-size: 16px;
+            text-align: center;
+            margin-bottom: 15px;
+            outline: none;
+        }
+        input::placeholder {
+            color: #ccc;
+        }
+        .btn {
+            background: linear-gradient(45deg, #00b09b, #96c93d);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            transition: 0.3s;
+        }
+        .btn:active {
+            transform: scale(0.98);
+        }
+        .message {
+            margin-top: 15px;
+            font-size: 15px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
 
+    <div class="container">
+        <header>
+            <div class="level-title" id="levelIndicator">Level 1</div>
+            <div class="wallet" id="walletBalance">🪙 Coins: 100</div>
+        </header>
+
+        <div class="puzzle-box" id="questionText">
+            लोड हो रहा है...
+        </div>
+
+        <input type="text" id="userAnswer" placeholder="अपना उत्तर यहाँ लिखें...">
+        
+        <button class="btn" onclick="checkAnswer()">उत्तर दें</button>
+
+        <div class="message" id="messageBox"></div>
+    </div>
+
+    <script>
+        const levels = [
+            { q: "भारत की राजधानी क्या है? (Capital of India)", a: "delhi" },
+            { q: "क्रिकेट टीम में कितने खिलाड़ी होते हैं? (Players in Cricket team)", a: "11" },
+            { q: "लाल किले में कौन सा रंग मुख्य रूप से है? (Color of Red Fort)", a: "lal" },
+            { q: "एक सप्ताह में कितने दिन होते हैं? (Days in a week)", a: "7" }
+        ];
+
+        let currentLevel = 0;
+        let coins = 100;
+
+        function loadLevel() {
+            if (currentLevel < levels.length) {
+                document.getElementById("levelIndicator").innerText = "Level " + (currentLevel + 1);
+                document.getElementById("questionText").innerText = levels[currentLevel].q;
+                document.getElementById("userAnswer").value = "";
+                document.getElementById("messageBox").innerText = "";
+            } else {
+                document.getElementById("questionText").innerText = "🎉 बधाई हो! आपने सारे लेवल पूरे कर लिए!";
+                document.getElementById("userAnswer").style.display = "none";
+                document.querySelector(".btn").style.display = "none";
+            }
+        }
+
+        function checkAnswer() {
+            let userAns = document.getElementById("userAnswer").value.toLowerCase().trim();
+            let correctAns = levels[currentLevel].a;
+
+            if (userAns === correctAns) {
+                coins += 20;
+                document.getElementById("walletBalance").innerText = "🪙 Coins: " + coins;
+                document.getElementById("messageBox").style.color = "#00ffcc";
+                document.getElementById("messageBox").innerText = "सਹੀ जवाब! +20 सिक्के मिले 🎉";
+                currentLevel++;
+                setTimeout(loadLevel, 1500);
+            } else {
+                document.getElementById("messageBox").style.color = "#ff4d4d";
+                document.getElementById("messageBox").innerText = "गलत जवाब! दोबारा कोशिश करें ❌";
+            }
+        }
+
+        loadLevel();
+    </script>
+</body>
+</html>
