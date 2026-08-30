@@ -2,97 +2,125 @@
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Paisa Puzzle India</title>
     <style>
-        html {
-            height: 100%;
-            background: #0f2027;
-        }
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
-        body {
+        html, body {
+            width: 100%;
+            height: 100%;
+            background: #0f2027;
             background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
             color: #fff;
-            min-height: 100vh;
+            overflow: hidden;
+        }
+        body {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 15px;
+            padding: 12px;
         }
         .container {
             width: 100%;
             max-width: 400px;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            height: 100%;
+            max-height: 650px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
             padding: 20px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            text-align: center;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
         header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            padding-bottom: 12px;
         }
         .wallet {
             background: #ffd700;
             color: #000;
-            padding: 5px 12px;
+            padding: 6px 14px;
             border-radius: 20px;
             font-weight: bold;
             font-size: 14px;
+            box-shadow: 0 4px 10px rgba(255, 215, 0, 0.3);
         }
         .level-title {
-            font-size: 16px;
+            font-size: 15px;
             color: #00ffcc;
+            font-weight: 600;
+        }
+        .game-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
         .puzzle-box {
             margin: 15px 0;
-            font-size: 18px;
+            font-size: 20px;
             font-weight: bold;
-            line-height: 1.4;
+            line-height: 1.5;
             text-align: left;
+            color: #ffffff;
         }
         .options-list {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
             margin-bottom: 15px;
         }
         .option-btn {
             background: rgba(255, 255, 255, 0.1);
             color: white;
             border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 12px;
-            border-radius: 10px;
-            font-size: 15px;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 16px;
             cursor: pointer;
             text-align: left;
-            transition: 0.2s;
+            transition: all 0.2s ease;
+            font-weight: 500;
         }
-        .option-btn:hover {
-            background: rgba(0, 255, 204, 0.2);
-            border-color: #00ffcc;
+        .option-btn:active {
+            background: rgba(0, 255, 204, 0.4);
+            transform: scale(0.98);
         }
         .hint-box {
-            font-size: 13px;
+            font-size: 14px;
             color: #ffeb3b;
-            margin-top: 10px;
+            background: rgba(255, 235, 59, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+            border-left: 4px solid #ffeb3b;
+            text-align: left;
+            margin-bottom: 10px;
         }
         .message {
-            margin-top: 10px;
-            font-size: 14px;
+            font-size: 16px;
             font-weight: bold;
+            min-height: 24px;
+            text-align: center;
+        }
+        .footer-credit {
+            text-align: center;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.4);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 10px;
         }
     </style>
 </head>
@@ -100,24 +128,22 @@
 
     <div class="container">
         <header>
-            <div class="level-title" id="categoryTitle">Category</div>
-            <div class="wallet" id="walletBalance">🪙 Coins: 100</div>
+            <div class="level-title" id="categoryTitle">Level 1</div>
+            <div class="wallet" id="walletBalance">🪙 Coins: 120</div>
         </header>
 
-        <div class="puzzle-box" id="questionText">
-            लोड हो रहा है...
+        <div class="game-content">
+            <div class="puzzle-box" id="questionText">लोड हो रहा है...</div>
+            <div class="options-list" id="optionsContainer"></div>
+            <div class="hint-box" id="hintText"></div>
+            <div class="message" id="messageBox"></div>
         </div>
 
-        <div class="options-list" id="optionsContainer">
-            <!-- Options will load dynamically -->
-        </div>
-
-        <div class="hint-box" id="hintText"></div>
-        <div class="message" id="messageBox"></div>
+        <div class="footer-credit">Paisa Puzzle India &bull; App Mode</div>
     </div>
 
     <script>
-        const gameData = [
+        const questions = [
             {
                 category: "Number Puzzle",
                 question: "2, 4, 8, 16, ?",
@@ -159,18 +185,24 @@
                 options: ["10", "15", "20", "25"],
                 answer: 1,
                 hint: "पहले भाग करें।"
+            },
+            {
+                category: "Logic",
+                question: "कौन सी चीज पानी में गिरने पर भी गीली नहीं होती?",
+                options: ["लोहा", "लकड़ी", "परछाई", "पत्थर"],
+                answer: 2,
+                hint: "यह रोशनी पड़ने पर बनती है।"
             }
         ];
 
         let currentLevel = 0;
-        let coins = 100;
+        let coins = 120;
 
         function loadQuestion() {
-            if (currentLevel < gameData.length) {
-                let currentQ = gameData[currentLevel];
+            if (currentLevel < questions.length) {
+                let currentQ = questions[currentLevel];
                 document.getElementById("categoryTitle").innerText = "Level " + (currentLevel + 1) + " (" + currentQ.category + ")";
                 document.getElementById("questionText").innerText = currentQ.question;
-                document.getElementById("hintText.innerText") = "";
                 document.getElementById("messageBox").innerText = "";
                 
                 let optionsHtml = "";
@@ -178,17 +210,20 @@
                     optionsHtml += `<button class="option-btn" onclick="checkAnswer(${i})">${i + 1}. ${currentQ.options[i]}</button>`;
                 }
                 document.getElementById("optionsContainer").innerHTML = optionsHtml;
+                document.getElementById("hintText").style.display = "block";
                 document.getElementById("hintText").innerText = "💡 हिंट: " + currentQ.hint;
             } else {
-                document.getElementById("categoryTitle").innerText = "समाप्त!";
-                document.getElementById("questionText").innerText = "🎉 बधाई हो! आपने सभी पहेलियां सफलतापूर्वक हल कर लीं!";
+                document.getElementById("categoryTitle").innerText = "चैंपियन!";
+                document.getElementById("questionText").innerText = "🎉 शानदार! आपने सभी पहेलियां सफलतापूर्वक हल कर ली हैं!";
                 document.getElementById("optionsContainer").innerHTML = "";
-                document.getElementById("hintText").innerText = "";
+                document.getElementById("hintText").style.display = "none";
+                document.getElementById("messageBox").style.color = "#00ffcc";
+                document.getElementById("messageBox").innerText = "बधाई हो! आप गेम जीत चुके हैं 🏆";
             }
         }
 
         function checkAnswer(selectedIndex) {
-            let currentQ = gameData[currentLevel];
+            let currentQ = questions[currentLevel];
             let msgBox = document.getElementById("messageBox");
 
             if (selectedIndex === currentQ.answer) {
